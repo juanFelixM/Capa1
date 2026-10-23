@@ -7,17 +7,30 @@ datasource db {
 }
 
 model Usuario {
-  id       Int    @id @default(autoincrement())
+  id       Int       @id @default(autoincrement())
   nombre   String
-  email    String @unique
+  email    String    @unique
   password String
-  rol      String @default("cliente")
+  rol      String    @default("cliente")
+  reservas Reserva[]
 }
 
 model Servicio {
-  id          Int    @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   nombre      String
   descripcion String
   duracion    Int
   precio      Float
+  reservas    Reserva[]
+}
+
+model Reserva {
+  id         Int      @id @default(autoincrement())
+  fecha      String
+  hora       String
+  estado     String   @default("pendiente")
+  usuarioId  Int
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  servicioId Int
+  servicio   Servicio @relation(fields: [servicioId], references: [id], onDelete: Cascade)
 }

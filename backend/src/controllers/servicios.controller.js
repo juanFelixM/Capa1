@@ -9,6 +9,21 @@ const listarServicios = async (req, res) => {
   }
 };
 
+const obtenerServicio = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const servicio = await prisma.servicio.findUnique({
+      where: { id: parseInt(id, 10) }
+    });
+    if (!servicio) {
+      return res.status(404).json({ error: 'Servicio no encontrado' });
+    }
+    res.json(servicio);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 const crearServicio = async (req, res) => {
   const { nombre, descripcion, duracion, precio } = req.body;
   try {
@@ -59,6 +74,7 @@ const eliminarServicio = async (req, res) => {
 
 module.exports = {
   listarServicios,
+  obtenerServicio,
   crearServicio,
   editarServicio,
   eliminarServicio
