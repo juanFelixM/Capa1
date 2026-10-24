@@ -46,7 +46,7 @@ export default function HomeScreen() {
             ¡Hola, {usuario?.nombre || 'Usuario'}!
           </Text>
           <Text style={styles.heroSubtitle}>
-            Gestiona y consulta los servicios disponibles.
+            Gestiona y reserva tus servicios de forma rapida.
           </Text>
         </View>
 
@@ -76,6 +76,19 @@ export default function HomeScreen() {
           <View style={styles.buttonContentRow}>
             <Text style={styles.primaryButtonText}>Ir a los servicios</Text>
             <Ionicons name="arrow-forward" size={18} color="#ffffff" style={styles.arrowIcon} />
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => router.push('/reservas' as any)}
+          activeOpacity={0.85}
+        >
+          <View style={styles.buttonContentRow}>
+            <Ionicons name="calendar-outline" size={18} color="#ffffff" style={{ marginRight: 8 }} />
+            <Text style={styles.primaryButtonText}>
+              {usuario?.rol === 'admin' ? 'Gestionar reservas' : 'Mis reservas'}
+            </Text>
           </View>
         </TouchableOpacity>
 
@@ -172,7 +185,15 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 14
+    marginBottom: 12
+  },
+  secondaryButton: {
+    backgroundColor: '#0f2942',
+    borderRadius: 16,
+    paddingVertical: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12
   },
   buttonContentRow: {
     flexDirection: 'row',
