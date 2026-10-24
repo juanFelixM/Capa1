@@ -121,6 +121,17 @@ export const getServiciosApi = async (token: string) => {
   return await checkResponse(response, 'Error al obtener los servicios');
 };
 
+export const getServicioByIdApi = async (token: string, id: number | string) => {
+  const response = await fetch(`${API_URL}/servicios/${id}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return await checkResponse(response, 'Error al obtener el detalle del servicio');
+};
+
 export const crearServicioApi = async (
   token: string,
   servicio: { nombre: string; descripcion: string; duracion: number; precio: number }
@@ -160,4 +171,67 @@ export const eliminarServicioApi = async (token: string, id: number) => {
     }
   });
   return await checkResponse(response, 'Error al eliminar el servicio');
+};
+
+export const crearReservaApi = async (
+  token: string,
+  reserva: { servicioId: number; fecha: string; hora: string }
+) => {
+  const response = await fetch(`${API_URL}/reservas`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(reserva)
+  });
+  return await checkResponse(response, 'Error al crear la reserva');
+};
+
+export const getMisReservasApi = async (token: string) => {
+  const response = await fetch(`${API_URL}/reservas/mis-reservas`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return await checkResponse(response, 'Error al obtener tus reservas');
+};
+
+export const getTodasReservasApi = async (token: string) => {
+  const response = await fetch(`${API_URL}/reservas`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return await checkResponse(response, 'Error al obtener todas las reservas');
+};
+
+export const cambiarEstadoReservaApi = async (
+  token: string,
+  id: number,
+  estado: 'pendiente' | 'completada' | 'cancelada'
+) => {
+  const response = await fetch(`${API_URL}/reservas/${id}/estado`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ estado })
+  });
+  return await checkResponse(response, 'Error al actualizar el estado de la reserva');
+};
+
+export const cancelarReservaApi = async (token: string, id: number) => {
+  const response = await fetch(`${API_URL}/reservas/${id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return await checkResponse(response, 'Error al cancelar la reserva');
 };

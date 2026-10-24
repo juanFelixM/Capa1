@@ -23,20 +23,13 @@ import {
   eliminarServicioApi,
   AuthExpiredError
 } from '@/services/api';
+import { ServicioItem } from '@/features/servicios/types';
 
-interface Servicio {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  duracion: number;
-  precio: number;
-}
-
-export default function ServiciosScreen() {
+export default function ServiciosIndexScreen() {
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [esAdmin, setEsAdmin] = useState(false);
-  const [servicios, setServicios] = useState<Servicio[]>([]);
+  const [servicios, setServicios] = useState<ServicioItem[]>([]);
 
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
@@ -47,7 +40,7 @@ export default function ServiciosScreen() {
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [eliminando, setEliminando] = useState(false);
-  const [servicioAEliminar, setServicioAEliminar] = useState<Servicio | null>(null);
+  const [servicioAEliminar, setServicioAEliminar] = useState<ServicioItem | null>(null);
   const [mensajeError, setMensajeError] = useState('');
 
   useEffect(() => {
@@ -143,7 +136,7 @@ export default function ServiciosScreen() {
     }
   };
 
-  const iniciarEdicion = (servicio: Servicio) => {
+  const iniciarEdicion = (servicio: ServicioItem) => {
     setMensajeError('');
     setEditandoId(servicio.id);
     setNombre(servicio.nombre);
@@ -171,9 +164,13 @@ export default function ServiciosScreen() {
     }
   };
 
-  const renderItem = ({ item }: { item: Servicio }) => (
+  const renderItem = ({ item }: { item: ServicioItem }) => (
     <View style={styles.serviceCard}>
-      <View style={styles.serviceInfo}>
+      <TouchableOpacity
+        style={styles.serviceInfo}
+        onPress={() => router.push(`/servicios/${item.id}` as any)}
+        activeOpacity={0.75}
+      >
         <Text style={styles.serviceTitle}>{item.nombre}</Text>
         {item.descripcion ? (
           <Text style={styles.serviceDesc} numberOfLines={2}>
@@ -190,8 +187,13 @@ export default function ServiciosScreen() {
           <View style={styles.priceBadge}>
             <Text style={styles.priceBadgeText}>${Number(item.precio).toFixed(2)}</Text>
           </View>
+
+          <View style={styles.detailLinkBadge}>
+            <Text style={styles.detailLinkText}>Ver detalle</Text>
+            <Ionicons name="chevron-forward" size={13} color="#1b5e48" />
+          </View>
         </View>
-      </View>
+      </TouchableOpacity>
 
       {esAdmin ? (
         <View style={styles.actionsColumn}>
@@ -232,14 +234,23 @@ export default function ServiciosScreen() {
             <Ionicons name="arrow-back" size={20} color="#1b5e48" style={styles.backIcon} />
             <Text style={styles.backButtonText}>Home</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.reservasLinkButton}
+            onPress={() => router.push('/reservas' as any)}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="calendar-outline" size={16} color="#1b5e48" />
+            <Text style={styles.reservasLinkText}>Reservas</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.header}>
           <Text style={styles.title}>Servicios</Text>
           <Text style={styles.subtitle}>
             {esAdmin
-              ? 'Administra los servicios disponibles para reservar'
-              : 'Consulta los servicios disponibles para reservar'}
+              ? 'Administra los servicios o toca uno para ver su detalle'
+              : 'Toca un servicio para ver su detalle y reservar'}
           </Text>
         </View>
 
@@ -410,6 +421,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '800'
   },
+  reservasLinkButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#dceee6',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    gap: 6
+  },
+  reservasLinkText: {
+    color: '#1b5e48',
+    fontSize: 13,
+    fontWeight: '800'
+  },
   header: {
     marginBottom: 16
   },
@@ -535,6 +560,7 @@ const styles = StyleSheet.create({
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
     gap: 8
   },
   metaBadge: {
@@ -561,6 +587,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '800',
     color: '#ffffff'
+  },
+  detailLinkBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 2
+  },
+  detailLinkText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#1b5e48'
   },
   actionsColumn: {
     flexDirection: 'row',
