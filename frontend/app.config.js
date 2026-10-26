@@ -11,6 +11,7 @@ module.exports = {
       icon: './assets/expo.icon'
     },
     android: {
+      package: 'com.juanf.reservasapp',
       adaptiveIcon: {
         backgroundColor: '#E6F4FE',
         foregroundImage: './assets/images/android-icon-foreground.png',
