@@ -3,7 +3,7 @@
 - **Nombre completo:** Juan Felix Maria Baldera
 - **Matricula:** 2013-0680
 - **Correo:** Juan_maria1@ucne.edu.do
-- **URL API Endpoint:** http://localhost:3000
+- **URL API Endpoint:** https://capa1-production.up.railway.app
 
 ## Endpoints
 
