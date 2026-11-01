@@ -1,52 +1,61 @@
 const prisma = require('../db');
 
-const esFechaPasada = (fechaStr, horaStr) => {
-  if (!fechaStr) return true;
-  const ahora = new Date();
-  const partesFecha = fechaStr.split('-').map(Number);
-  if (partesFecha.length !== 3 || partesFecha.some(isNaN)) return true;
-
-  const [anio, mes, dia] = partesFecha;
-  if (horaStr && /^\d{1,2}:\d{2}$/.test(horaStr.trim())) {
-    const [horas, minutos] = horaStr.trim().split(':').map(Number);
-    const fechaHoraReserva = new Date(anio, mes - 1, dia, horas, minutos, 0, 0);
-    return fechaHoraReserva < ahora;
+const validarReserva = (servicioId, fecha, hora) => {
+  if (!servicioId || !fecha || !hora) {
+    return 'Servicio, fecha y hora son obligatorios';
   }
 
-  const hoyInicio = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
-  const fechaReserva = new Date(anio, mes - 1, dia);
-  return fechaReserva < hoyInicio;
+  const [anio, mes, dia] = fecha.split('-').map(Number);
+  const [horas, minutos] = hora.split(':').map(Number);
+
+  const fechaValida = /^\d{4}-\d{2}-\d{2}$/.test(fecha);
+  const horaValida = /^\d{1,2}:\d{2}$/.test(hora) && horas <= 23 && minutos <= 59;
+  const servicioValido = !Number.isNaN(parseInt(servicioId, 10));
+
+  if (!fechaValida || !horaValida || !servicioValido) {
+    return 'El servicio, la fecha (AAAA-MM-DD) o la hora (HH:MM) no tienen un formato valido';
+  }
+
+  const fechaHoraReserva = new Date(anio, mes - 1, dia, horas, minutos);
+  if (fechaHoraReserva < new Date()) {
+    return 'La fecha y hora de la reserva deben ser futuras';
+  }
+
+  return null;
 };
 
 const crearReserva = async (req, res) => {
-  const { servicioId, fecha, hora } = req.body;
+  const fecha = String(req.body.fecha ?? '').trim();
+  const hora = String(req.body.hora ?? '').trim();
+  const servicioId = parseInt(req.body.servicioId, 10);
   const usuarioId = req.usuario.id;
 
-  if (!servicioId || !fecha || !hora) {
-    return res.status(400).json({ error: 'Servicio, fecha y hora son obligatorios' });
-  }
-
-  if (esFechaPasada(fecha, hora)) {
-    return res.status(400).json({ error: 'No se puede reservar en una fecha u hora pasada' });
+  const error = validarReserva(req.body.servicioId, fecha, hora);
+  if (error) {
+    return res.status(400).json({ error });
   }
 
   try {
-    const servicio = await prisma.servicio.findUnique({
-      where: { id: parseInt(servicioId, 10) }
-    });
+    const servicio = await prisma.servicio.findUnique({ where: { id: servicioId } });
 
     if (!servicio) {
-      return res.status(404).json({ error: 'Servicio no encontrado' });
+      return res.status(404).json({ error: 'El servicio no existe' });
+    }
+
+    if (!servicio.activo) {
+      return res.status(400).json({ error: 'El servicio no se encuentra activo y no admite nuevas reservas' });
+    }
+
+    const duplicada = await prisma.reserva.findFirst({
+      where: { usuarioId, servicioId, fecha, estado: 'pendiente' }
+    });
+
+    if (duplicada) {
+      return res.status(409).json({ error: 'Ya tienes una reserva activa para este servicio en esa fecha' });
     }
 
     const nuevaReserva = await prisma.reserva.create({
-      data: {
-        fecha: String(fecha).trim(),
-        hora: String(hora).trim(),
-        estado: 'pendiente',
-        usuarioId,
-        servicioId: servicio.id
-      },
+      data: { fecha, hora, estado: 'pendiente', usuarioId, servicioId },
       include: {
         servicio: true,
         usuario: { select: { id: true, nombre: true, email: true } }
