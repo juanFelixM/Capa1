@@ -19,6 +19,7 @@ import {
   AuthExpiredError
 } from '@/services/api';
 import { esFechaFuturaOActual, obtenerFechaManana } from '@/lib/fechas';
+import { programarRecordatorio } from '@/lib/notificaciones';
 
 export default function NuevaReservaScreen() {
   const params = useLocalSearchParams<{
@@ -81,11 +82,13 @@ export default function NuevaReservaScreen() {
         return;
       }
 
-      await crearReservaApi(token, {
+      const reservaCreada = await crearReservaApi(token, {
         servicioId: parseInt(String(params.servicioId), 10),
         fecha: fecha.trim(),
         hora: hora.trim()
       });
+
+      await programarRecordatorio(reservaCreada);
 
       router.replace('/reservas' as any);
     } catch (err: any) {

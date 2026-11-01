@@ -21,6 +21,7 @@ import {
   AuthExpiredError
 } from '@/services/api';
 import { ReservaItem } from '@/features/reservas/types';
+import { cancelarRecordatorio } from '@/lib/notificaciones';
 
 export default function ReservasIndexScreen() {
   const router = useRouter();
@@ -94,6 +95,7 @@ export default function ReservasIndexScreen() {
     setMensajeError('');
     try {
       const actualizada = await cancelarReservaApi(token, id);
+      await cancelarRecordatorio(id);
       setReservas((prev) =>
         prev.map((r) => (r.id === id ? actualizada : r))
       );
