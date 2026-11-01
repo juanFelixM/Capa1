@@ -94,6 +94,14 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={styles.logoutButton}
+          onPress={() => router.push('/perfil' as any)}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.logoutButtonText}>Mi perfil</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.logoutButton}
           onPress={handleCerrarSesion}
           activeOpacity={0.85}
         >

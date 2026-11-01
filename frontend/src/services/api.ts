@@ -188,6 +188,18 @@ export const crearReservaApi = async (
   return await checkResponse(response, 'Error al crear la reserva');
 };
 
+export const actualizarPerfilApi = async (token: string, nombre: string) => {
+  const response = await fetch(`${API_URL}/usuarios/perfil`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ nombre })
+  });
+  return await checkResponse(response, 'Error al actualizar el perfil');
+};
+
 export const getMisReservasApi = async (token: string) => {
   const response = await fetch(`${API_URL}/reservas/mis-reservas`, {
     method: 'GET',
